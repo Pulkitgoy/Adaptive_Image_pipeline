@@ -1,0 +1,16 @@
+services:
+
+  api-service:
+    build: ./api-service
+    ports:
+      - "3000:3000"
+    depends_on:
+      - redis
+
+  worker-service:
+    build: ./worker-service
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7-alpine
