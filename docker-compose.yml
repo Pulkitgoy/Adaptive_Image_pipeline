@@ -11,6 +11,9 @@ services:
     build: ./worker-service
     depends_on:
       - redis
-
+    volumes:
+      - ./uploads:/uploads
+      - ./processed:/processed
   redis:
     image: redis:7-alpine
+
