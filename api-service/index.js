@@ -29,15 +29,22 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 app.post("/upload", upload.single("image"), async (req, res) => {
-
+    const type = req.query.type || "resize";
+    const queueMap = {
+        resize: "resize_jobs",
+        compress: "compression_jobs",
+        ai: "ai_jobs"
+    };
     const job = {
         job_id: uuidv4(),
         image: req.file.filename,
+        type,
         task: "queued",
         created_at: new Date()
     };
     await Job.create(job);
-    await redisClient.lPush("image_jobs", JSON.stringify(job));
+    const queueName = queueMap[type];
+    await redisClient.lPush(queueName, JSON.stringify(job));
 
     log({
         service: "api-service",
