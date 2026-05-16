@@ -6,14 +6,44 @@ services:
       - "3000:3000"
     depends_on:
       - redis
+    volumes:
+      - ./uploads:/uploads
 
   worker-service:
+    ports:
+      - "4000:4000"
     build: ./worker-service
     depends_on:
       - redis
     volumes:
       - ./uploads:/uploads
       - ./processed:/processed
+  mongodb:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+
   redis:
     image: redis:7-alpine
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.13.0
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.13.0
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
 
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3001:3000"

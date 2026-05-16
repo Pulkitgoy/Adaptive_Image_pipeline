@@ -3,13 +3,16 @@ const multer = require("multer");
 const path = require("path");
 const { v4: uuidv4 } = require("uuid");
 const { createClient } = require("redis");
-
+const mongoose = require("mongoose");
 const app = express();
+const Job = require("./models/Job");
+const log = require("./utils/logger");
 
 const redisClient = createClient({
     url: "redis://redis:6379"
 });
 
+mongoose.connect("mongodb://mongodb:27017/image_pipeline");
 redisClient.connect();
 
 const storage = multer.diskStorage({
@@ -28,24 +31,41 @@ const upload = multer({ storage });
 app.post("/upload", upload.single("image"), async (req, res) => {
 
     const job = {
-        id: uuidv4(),
+        job_id: uuidv4(),
         image: req.file.filename,
-        task: "resize",
+        task: "queued",
         created_at: new Date()
     };
-
+    await Job.create(job);
     await redisClient.lPush("image_jobs", JSON.stringify(job));
 
-    console.log(JSON.stringify({
+    log({
         service: "api-service",
         event: "job_queued",
-        job
-    }));
+        job_id: job.job_id,
+        image: job.image,
+        status: "queued"
+    });
 
     res.json({
         message: "Image uploaded",
         job
     });
+});
+
+app.get("/job/:id", async (req, res) => {
+
+    const job = await Job.findOne({
+        job_id: req.params.id
+    });
+
+    if (!job) {
+        return res.status(404).json({
+            error: "Job not found"
+        });
+    }
+
+    res.json(job);
 });
 
 app.listen(3000, () => {
