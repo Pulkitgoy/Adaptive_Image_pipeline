@@ -48,7 +48,7 @@ async function processImage(jobData) {
         processing_time_ms: end - start
     }));
 }
-
+aa=5
 async function startWorker() {
 
     await redisClient.connect();
