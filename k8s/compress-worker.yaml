@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: compress-worker
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: compress-worker
+
+  template:
+    metadata:
+      labels:
+        app: compress-worker
+
+    spec:
+      containers:
+      - name: compress-worker
+        image: pulkitgo/compress-worker:v1
+
+        volumeMounts:
+        - name: uploads-volume
+          mountPath: /uploads
+
+        - name: processed-volume
+          mountPath: /processed
+
+      volumes:
+      - name: uploads-volume
+        emptyDir: {}
+
+      - name: processed-volume
+        emptyDir: {}

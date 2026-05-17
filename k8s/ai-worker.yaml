@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: ai-worker
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: ai-worker
+
+  template:
+    metadata:
+      labels:
+        app: ai-worker
+
+    spec:
+      containers:
+      - name: ai-worker
+        image: pulkitgo/ai-worker:v1
+
+        volumeMounts:
+        - name: uploads-volume
+          mountPath: /uploads
+
+        - name: processed-volume
+          mountPath: /processed
+
+      volumes:
+      - name: uploads-volume
+        emptyDir: {}
+
+      - name: processed-volume
+        emptyDir: {}
