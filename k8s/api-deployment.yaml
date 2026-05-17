@@ -19,7 +19,8 @@ spec:
     spec:
       containers:
         - name: api-service
-          image: pulkitgo/api-service:v1
+          image: pulkitgo/api-service:latest
+          imagePullPolicy: Always
 
           ports:
             - containerPort: 3000
